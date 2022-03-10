@@ -15,7 +15,7 @@ int main(int argc, char** argv){
 
     char* args[4];
     for(int j = 0; j < 4; j++){
-        //QUESTION how to free this 
+      
         args[j] = (char*) malloc(100);
                 
     }
@@ -31,23 +31,24 @@ int main(int argc, char** argv){
     int X = 0;
     char strX[3];
 
-    int pids[numPrograms];
+    // int pids[numPrograms];
 
+    // needs to be mmap-ed because the children are altering array
     int* terminate_children = (int*) mmap(NULL, sizeof(int) * numPrograms, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1,0);
     
-    printf("%d\n", numPrograms);
+    // printf("%d\n", numPrograms);
 
     for(int i = 0; i < numPrograms; i++){
         if(fork() == 0){
 
-            pids[X] = getpid();
+            // pids[X] = getpid();
             
             strcpy(args[0], argv[1]);
             sprintf(strX, "%d", X);
             strcpy(args[1], strX);
             strcpy(args[2], Y);
             args[3] = NULL;
-            cout << "program name is " << program2 << "args are " << args[0] << " " << args[1] << " " << args[2] << endl;
+            // cout << "program name is " << program2 << "args are " << args[0] << " " << args[1] << " " << args[2] << endl;
 
             terminate_children[i] = getpid();
 
@@ -58,11 +59,6 @@ int main(int argc, char** argv){
 
             return 0;
         }
-        // wait(0);
-            // else{
-            //     wait(0);
-            //     printf("done with execv\n");
-            // }
   
         X++;
     }
@@ -84,6 +80,8 @@ int main(int argc, char** argv){
  for(int j = 0; j < 4; j++){
     free(args[j]);         
 }
+
+munmap(terminate_children, sizeof(int) * numPrograms);
 
 return 0;
 
